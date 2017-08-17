@@ -1,3 +1,3 @@
 # vim-odin
 
-[Odin](https://odin-lang.org) syntax integration for Vim
+[Odin](www.odin-lang.org) syntax integration for Vim
