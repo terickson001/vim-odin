@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword odinKeyword import do for while in defer match return using import_load foreign foreign_library foreign_system_library const fallthrough break continue asm yield await push_allocator push_context vector static dynamic atomic
+syn keyword odinKeyword import do for in defer match return using import_load foreign foreign_library foreign_system_library const fallthrough break continue asm yield await push_allocator push_context vector static dynamic atomic
 syn keyword odinConditional if else when
 syn keyword odinLabel case
 
