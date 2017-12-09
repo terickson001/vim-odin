@@ -16,7 +16,7 @@ syn keyword odinLabel case
 
 " Keywords take precedence over other matches. For now, this works to get around it.
 " syn keyword odinBuiltinType int i8 i16 i32 i64 i128 uint u8 u16 u32 u64 u128 f32 f64 rawptr string byte rune proc struct union any type
-syn match odinBuiltinType "\W\@<=\(int\|i\(8\|16\|32\|64\|128\)\|uint\|u\(8\|16\|32\|64\|128\)\|f\(32\|64\)\|rawptr\|string\|byte\|rune\|struct\|union\|any\|type\)\W\@="
+syn match odinBuiltinType "\W\@<=\(int\|i\(8\|16\|32\|64\|128\)\|uint\|u\(8\|16\|32\|64\|128\)\|f\(32\|64\)\|rawptr\|string\|byte\|rune\|struct\|union\|any\|type\|enum\)\W\@="
 
 syn match odinTypeAssignment contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\(\/\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\)\=" contains=odinProcType,odinContainerType,odinBuiltinType,odinType,odinPointerOperator,odinPolymorphicTypeOperator nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
 syn match odinType contained "[a-zA-Z_]\w*"
