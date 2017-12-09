@@ -16,29 +16,34 @@ syn keyword odinLabel case
 
 " Keywords take precedence over other matches. For now, this works to get around it.
 " syn keyword odinBuiltinType int i8 i16 i32 i64 i128 uint u8 u16 u32 u64 u128 f32 f64 rawptr string byte rune proc struct union any type
-syn match odinBuiltinType "\W\@<=\(i\(nt\|8\|16\|32\|64\|128\)\|uint\|u\(8\|16\|32\|64\|128\)\|f\(32\|64\)\|rawptr\|string\|byte\|rune\|struct\|union\|any\|type\)\W\@="
+syn match odinBuiltinType "\W\@<=\(int\|i\(8\|16\|32\|64\|128\)\|uint\|u\(8\|16\|32\|64\|128\)\|f\(32\|64\)\|rawptr\|string\|byte\|rune\|struct\|union\|any\|type\)\W\@="
 
-syn match odinTypeAssignment contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\(\/\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\)\=" contains=odinContainerType,odinType,odinBuiltinType,odinPointerOperator,odinPolymorphicTypeOperator nextgroup=odinTypeArrow skipwhite
+syn match odinTypeAssignment contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\(\/\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\)\=" contains=odinProcType,odinContainerType,odinBuiltinType,odinType,odinPointerOperator,odinPolymorphicTypeOperator nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
 syn match odinType contained "[a-zA-Z_]\w*"
 syn match odinContainerTypeName contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\((\|{\)\@=" nextgroup=odinContainerTypeParens
-syn match odinContainerType contained "[a-zA-Z_]\w*\((.\{-})\|{.\{-}}\)" contains=odinContainerTypeParens,odinContainerTypeName
-syn region odinContainerTypeParens contained start="\((\|{\)" skip="\((.\{-})\|{.\{-}}\)" end="\()\|}\)" contains=odinParameterDec,odinTypeAssignment skipwhite
+syn match odinContainerType contained "[a-zA-Z_]\w*\((.\{-})\|{.\{-}}\)" contains=odinTypeParameters,odinContainerTypeName
+" syn region odinContainerTypeParens contained start="\((\|{\)" skip="\((.\{-})\|{.\{-}}\)" end="\()\|}\)" contains=odinParameterDec,odinTypeAssignment skipwhite
 syn region odinTypeTuple contained start="(" skip="(.\{-})" end=")" contains=odinTypeAssignment
 
+syn region odinTypeParameters contained start="(" skip="(.\{-})" end=")" contains=odinParameterDec,odinHashStatement,odinTypeAssignment nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
+
 " Functions
-syn match odinFunction "[a-z_][a-zA-Z_]*(\@="
-syn match odinFunctionDeclaration "\(^\s*\)\@<=[a-z_]\w*\(\s*::\s*proc\)\@=" nextgroup=odinFuncTypeDec skipwhite
-syn match odinFuncTypeDec "::" nextgroup=odinProcType,odinTypeAssignment skipwhite
-syn keyword odinProcType proc nextgroup=odinProcTypeParameters
-syn region odinProcTypeParameters contained start="(" skip="(.\{-})" end=")" contains=odinParameterDec,odinHashStatement nextgroup=odinTypeArrow skipwhite
+syn match odinFunction "[a-z_][a-zA-Z_]*(\@=" contains=odinBuiltinType
+syn match odinFunctionDeclaration "\(^\s*\)\@<=[a-z_]\w*\(\s*\(:\(\s*:\|\s*=\|\)\)\s*proc\)\@=" nextgroup=odinTypeDec skipwhite
+syn match odinTypeDec ":" nextgroup=odinProcType,odinTypeAssignment,odinConstantDef,odinVariableDef skipwhite
+syn match odinConstantDef contained ":" nextgroup=odinProcType,odinTypeAssignment
+syn match odinVariableDef contained "=" nextgroup=odinProcType,odinTypeAssignment
+syn keyword odinProcType proc nextgroup=odinTypeParameters,odinProcTypeString
+syn region odinProcTypeString  start='"' skip='\\"' end='"'
+" syn region odinProcTypeParameters contained start="(" skip="(.\{-})" end=")" contains=odinParameterDec,odinHashStatement,odinTypeAssignment nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
 syn match odinParameterDec contained "\((\|,\)\s*\([a-zA-Z_]\+,\s*\)*[a-zA-Z_]\+\s*:" nextgroup=odinTypeAssignment skipwhite
 syn match odinTypeArrow contained "->" nextgroup=odinTypeAssignment,odinTypeTuple skipwhite
 
-syn match odinTypeCast "\u\w*(\@="
+syn match odinTypeCast "\u\w*(\@=" nextgroup=odinTypeCaseParens
 syn match odinCastFunction "cast(\@=" nextgroup=odinCastFunctionParens
 syn region odinCastFunctionParens contained start="(" skip="(.\{-})" end=")" contains=odinTypeAssignment
 
-syn match odinVariableDec "\([a-z]\w*,\s*\)*[a-z]\w*\s*::\@!" nextgroup=odinTypeAssignment skipwhite
+" syn match odinVariableDec "\([a-z]\w*,\s*\)*[a-z]\w*\s*::\@!" nextgroup=odinTypeAssignment skipwhite
 
 " Operators
 syn match odinOperator "\(+=\|-=\|\/\|\*\|%\|\~\|+\|-\|&\|>>\|<<\|>=\|<=\|==\|!=\|!\|>\|<\)"
@@ -64,6 +69,7 @@ syn match odinComment "//.*$" contains=odinTODO
 syn match odinTODO contained "\(\(^\|\/\/\)[[:blank:]\*\/]*\)\@<=\u\S*:"
 
 syn match odinHashStatement "#[a-zA-z_][a-zA-z_0-9]*"
+syn match odinAttributeDec "@(\@="
 
 " Highlighting
 let b:current_syntax = "odin"
@@ -96,6 +102,8 @@ hi def link odinNil                     Constant
 hi def link odinPointerOperator         odinOperator
 hi def link odinPolymorphicTypeOperator odinOperator
 hi def link odinOperator                Structure
+
+hi def link odinAttributeDec            Structure
 
 hi def link odinTypeCast                Type
 
