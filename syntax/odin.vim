@@ -26,15 +26,16 @@ syn match odinContainerType contained "[a-zA-Z_]\w*\((.\{-})\|{.\{-}}\)" contain
 syn region odinTypeTuple contained start="(" skip="(.\{-})" end=")" contains=odinTypeAssignment
 
 syn region odinTypeParameters contained start="(" skip="(.\{-})" end=")" contains=odinParameterDec,odinHashStatement,odinTypeAssignment nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
+syn match odinConstant "[A-Z_][A-Z0-9_]\+"
 
 " Functions
-syn match odinFunction "[a-z_][a-zA-Z_]*(\@=" contains=odinBuiltinType
-syn match odinFunctionDeclaration "\(^\s*\)\@<=[a-z_]\w*\(\s*\(:\(\s*:\|\s*=\|\)\)\s*proc\)\@=" nextgroup=odinTypeDec skipwhite
+syn match odinFunction "[a-z_]\w*(\@=" contains=odinBuiltinType
+syn match odinFunctionDeclaration "[^\W]\@<=[a-z_]\w*\(\s*\(:\(\s*:\|\s*=\|\)\)\s*proc\)\@=" nextgroup=odinTypeDec skipwhite
 syn match odinTypeDec ":" nextgroup=odinProcType,odinTypeAssignment,odinConstantDef,odinVariableDef skipwhite
-syn match odinConstantDef contained ":" nextgroup=odinProcType,odinTypeAssignment
-syn match odinVariableDef contained "=" nextgroup=odinProcType,odinTypeAssignment
-syn keyword odinProcType proc nextgroup=odinTypeParameters,odinProcTypeString
-syn region odinProcTypeString  start='"' skip='\\"' end='"'
+syn match odinConstantDef contained ":" nextgroup=odinConstant,odinProcType,odinTypeAssignment,odinFunction skipwhite
+syn match odinVariableDef contained "=" nextgroup=odinConstant,odinProcType,odinTypeAssignment,odinFunction skipwhite
+syn keyword odinProcType proc nextgroup=odinTypeParameters,odinProcTypeString skipwhite
+syn region odinProcTypeString  start='"' skip='\\"' end='"' skipwhite nextgroup=odinTypeParameters
 " syn region odinProcTypeParameters contained start="(" skip="(.\{-})" end=")" contains=odinParameterDec,odinHashStatement,odinTypeAssignment nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
 syn match odinParameterDec contained "\((\|,\)\s*\([a-zA-Z_]\+,\s*\)*[a-zA-Z_]\+\s*:" nextgroup=odinTypeAssignment skipwhite
 syn match odinTypeArrow contained "->" nextgroup=odinTypeAssignment,odinTypeTuple skipwhite
@@ -49,10 +50,12 @@ syn region odinCastFunctionParens contained start="(" skip="(.\{-})" end=")" con
 syn match odinOperator "\(+=\|-=\|\/\|\*\|%\|\~\|+\|-\|&\|>>\|<<\|>=\|<=\|==\|!=\|!\|>\|<\)"
 syn match odinPointerOperator "\^"
 syn match odinPolymorphicTypeOperator contained "\$"
+syn match odinEmptyDefinition "---"
 
 " Numbers
 syn match odinInteger "\W\@<=[0-9]\+"
 syn match odinDecimal "\W\@<=[0-9]\+\.[0-9]\+"
+syn match odinHexadecimal "\W\@<=0x[0-9A-Fa-f]\+"
 
 " Bools
 syn keyword odinBoolean true false
@@ -77,6 +80,7 @@ hi def link odinKeyword                 Statement
 hi def link odinConditional             Conditional
 hi def link odinLabel                   Label
 
+hi def link odinProcTypeString          odinString
 hi def link odinString                  String
 hi def link odinPrintfSpecifier         Constant
 hi def link odinCharacter               Character
@@ -91,6 +95,7 @@ hi def link odinComment                 Comment
 
 hi def link odinInteger                 Number
 hi def link odinDecimal                 Number
+hi def link odinHexadecimal             Number
 
 hi def link odinCastFunction            odinFunction
 hi def link odinFunctionDeclaration     odinFunction
@@ -102,6 +107,8 @@ hi def link odinNil                     Constant
 hi def link odinPointerOperator         odinOperator
 hi def link odinPolymorphicTypeOperator odinOperator
 hi def link odinOperator                Structure
+
+hi def link odinEmptyDefinition         Statement
 
 hi def link odinAttributeDec            Structure
 
