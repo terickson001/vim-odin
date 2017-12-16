@@ -8,20 +8,20 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword odinKeyword import do for in defer match return using import_load foreign foreign_library foreign_system_library const fallthrough break continue asm yield await push_allocator push_context vector static dynamic atomic
-syn keyword odinConditional if else when
+syn keyword odinKeyword import do for in defer match return using import_load foreign foreign_library foreign_system_library const fallthrough break continue asm yield await push_allocator push_context vector static dynamic atomic inline
+syn keyword odinConditional if else when switch
 syn keyword odinLabel case
 
 " Types
 
 " Keywords take precedence over other matches. For now, this works to get around it.
 " syn keyword odinBuiltinType int i8 i16 i32 i64 i128 uint u8 u16 u32 u64 u128 f32 f64 rawptr string byte rune proc struct union any type
-syn match odinBuiltinType "\W\@<=\(int\|i\(8\|16\|32\|64\|128\)\|uint\|u\(8\|16\|32\|64\|128\)\|f\(32\|64\)\|rawptr\|string\|byte\|rune\|struct\|union\|any\|type\|enum\)\W\@="
+syn match odinBuiltinType "\(^\|\W\)\@<=\(int\|i\(8\|16\|32\|64\|128\)\|uint\|u\(8\|16\|32\|64\|128\)\|f\(32\|64\)\|rawptr\|string\|byte\|rune\|struct\|union\|any\|type\|enum\|bool\)\(\W\|$\)\@="
 
 syn match odinTypeAssignment contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\(\/\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\)\=" contains=odinProcType,odinContainerType,odinBuiltinType,odinType,odinPointerOperator,odinPolymorphicTypeOperator nextgroup=odinTypeArrow,odinConstantDef,odinVariableDef skipwhite
-syn match odinType contained "[a-zA-Z_]\w*"
-syn match odinContainerTypeName contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\((\|{\)\@=" nextgroup=odinContainerTypeParens
-syn match odinContainerType contained "[a-zA-Z_]\w*\((.\{-})\|{.\{-}}\)" contains=odinTypeParameters,odinContainerTypeName
+" syn match odinType contained "[a-zA-Z_]\w*"
+" syn match odinContainerTypeName contained "\^\=\(\[\]\)\=\(\.\{2,3}\)\=\^\=\$\=\([a-zA-Z_]\+\.\)\=[a-zA-Z_]\w*\((\|{\)\@=" nextgroup=odinContainerTypeParens
+" syn match odinContainerType contained "[a-zA-Z_]\w*\((.\{-})\|{.\{-}}\)" contains=odinTypeParameters,odinContainerTypeName
 " syn region odinContainerTypeParens contained start="\((\|{\)" skip="\((.\{-})\|{.\{-}}\)" end="\()\|}\)" contains=odinParameterDec,odinTypeAssignment skipwhite
 syn region odinTypeTuple contained start="(" skip="(.\{-})" end=")" contains=odinTypeAssignment
 
@@ -29,8 +29,8 @@ syn region odinTypeParameters contained start="(" skip="(.\{-})" end=")" contain
 syn match odinConstant "[A-Z_][A-Z0-9_]\+"
 
 " Functions
-syn match odinFunction "[a-z_]\w*(\@=" contains=odinBuiltinType
-syn match odinFunctionDeclaration "[^\W]\@<=[a-z_]\w*\(\s*\(:\(\s*:\|\s*=\|\)\)\s*proc\)\@=" nextgroup=odinTypeDec skipwhite
+syn match odinFunction "[a-zA-Z_]\w*(\@=" contains=odinBuiltinType
+syn match odinFunctionDeclaration "[a-zA-Z_]\w*\(\s*\(:\(\s*:\|\s*=\)\=\)\(\s*inline\)\=\s*proc\)\@=" nextgroup=odinTypeDec skipwhite
 syn match odinTypeDec ":" nextgroup=odinProcType,odinTypeAssignment,odinConstantDef,odinVariableDef skipwhite
 syn match odinConstantDef contained ":" nextgroup=odinConstant,odinProcType,odinTypeAssignment,odinFunction skipwhite
 syn match odinVariableDef contained "=" nextgroup=odinConstant,odinProcType,odinTypeAssignment,odinFunction skipwhite
@@ -40,7 +40,7 @@ syn region odinProcTypeString  start='"' skip='\\"' end='"' skipwhite nextgroup=
 syn match odinParameterDec contained "\((\|,\)\s*\([a-zA-Z_]\+,\s*\)*[a-zA-Z_]\+\s*:" nextgroup=odinTypeAssignment skipwhite
 syn match odinTypeArrow contained "->" nextgroup=odinTypeAssignment,odinTypeTuple skipwhite
 
-syn match odinTypeCast "\u\w*(\@=" nextgroup=odinTypeCaseParens
+" syn match odinTypeCast "[.\w]\@<!\u\w*(\@=" nextgroup=odinTypeCaseParens
 syn match odinCastFunction "cast(\@=" nextgroup=odinCastFunctionParens
 syn region odinCastFunctionParens contained start="(" skip="(.\{-})" end=")" contains=odinTypeAssignment
 
@@ -62,9 +62,11 @@ syn keyword odinBoolean true false
 syn keyword odinNil nil
 
 " Strings
-syn region odinString  start='"' skip='\\"' end='"' contains=odinPrintfSpecifier
-syn region odinCharacter  start="'" skip="\\'" end="'"
+syn region odinString  start='"' skip='\\\\\|\\"' end='"' contains=odinPrintfSpecifier,odinEscapedCharacter
+syn region odinMultilineString  start='`' skip='\\\\\|\\`' end='`' contains=odinPrintfSpecifier,odinEscapedCharacter
+syn region odinCharacter  start="'" skip="\\\\\|\\'" end="'"
 syn match odinPrintfSpecifier contained "%\( \|-\|+\|0\|#\)\=\([0-9]\|\*\)\=\(\.[0-9]\|\.\*\)\=\(hh\|h\|l\|ll\|j\|z\|t\|L\)\=\(t\|v\|c\|r\|b\|o\|d\|z\|x\|X\|U\|f\|F\|s\|p\|T\)"
+syn match odinEscapedCharacter contained "\\."
 
 " Comments
 syn region odinCommentBlock start="/\*" end="\*/" contains=odinTODO
@@ -81,8 +83,10 @@ hi def link odinConditional             Conditional
 hi def link odinLabel                   Label
 
 hi def link odinProcTypeString          odinString
+hi def link odinMultilineString         odinString
 hi def link odinString                  String
 hi def link odinPrintfSpecifier         Constant
+hi def link odinEscapedCharacter        Constant
 hi def link odinCharacter               Character
 
 hi def link odinProcType                odinType
